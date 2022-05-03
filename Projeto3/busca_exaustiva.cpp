@@ -52,7 +52,28 @@ vector<vector<nucleotidio>> createPowerSet(vector<nucleotidio> set, int set_size
 
         if (subseq.size() > 0)
         {
-            power_set_list.push_back(subseq);
+            // verify if the elements in the subsequence are subseq of the original set
+            bool is_subseq = true;
+            int size = subseq.size();
+
+            for (int i = 0; i < size - 1; i++)
+            {
+                if (subseq[i + 1].id == subseq[i].id + 1)
+                {
+                    is_subseq = true;
+                }
+                else
+                {
+                    is_subseq = false;
+                    break;
+                }
+            }
+
+            if (is_subseq)
+            {
+                power_set_list.push_back(subseq);
+            }
+
             subseq.clear();
         }
     }
@@ -256,7 +277,6 @@ int main()
     cout << endl;
 
     cout << "Score: " << resultado.score << endl;
-
 
     return 0;
 }
