@@ -1,4 +1,5 @@
 #include <omp.h>
+#include <chrono>
 #include <vector>
 #include <iostream>
 #include <stdlib.h>
@@ -71,6 +72,9 @@ int main()
 
     // Garantindo que a sequencia A seja a maior que a B
     // Para que as subsequencias de tamanho k não sejam maior que a sequencia a
+
+    // Marcando o start time
+    auto start = chrono::high_resolution_clock::now();
 
 #pragma omp parallel
     {
@@ -166,6 +170,9 @@ int main()
         }
     }
 
+    // Marcando o end time
+    auto end = chrono::high_resolution_clock::now();
+
     // Print do score do resultado
     cout << "melhor sa: [";
     for (auto &el : resultado.subseq_a)
@@ -176,6 +183,9 @@ int main()
     cout << "]" << endl;
 
     cout << "score: " << resultado.score << endl;
+
+    // Print do tempo de execução
+    cout << "tempo paralelo: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms" << endl;
 
     return 0;
 }
