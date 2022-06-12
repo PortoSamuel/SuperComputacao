@@ -1,0 +1,5 @@
+sb: [AC]
+list_sa: [TA, CA, AC, CT]
+melhor sa: [AC]
+score: 2
+tempo sequencial: 0ms
