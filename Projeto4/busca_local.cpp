@@ -25,7 +25,7 @@ int w(char a, char b)
     }
     else
     {
-        return -1;
+        return 0;
     }
 }
 
