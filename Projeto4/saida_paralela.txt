@@ -1,5 +1,0 @@
-sb: [AC]
-list_sa: [TA, CA, AC, CT]
-melhor sa: [AC]
-score: 2
-tempo paralelo: 2ms
