@@ -21,8 +21,8 @@ struct mat_ele
 struct result
 {
     int score = 0;
-    vector<nucleotidio> subseq_a;
-    vector<nucleotidio> subseq_b;
+    thrust::device_vector<nucleotidio> subseq_a;
+    thrust::device_vector<nucleotidio> subseq_b;
 };
 
 // Function to create all the power set
@@ -95,28 +95,6 @@ int char_score(char a, char b)
     }
 }
 
-// Função que calcula o score de duas subsequencias de mesmo tamanho
-// Como feito no projeto 2
-// int w(vector<nucleotidio> sa, vector<nucleotidio> sb)
-// {
-//     int score = 0;
-//     int u = sa.size();
-
-//     for (int i = 0; i < u; i++)
-//     {
-//         if (sa[i].base == sb[i].base && sb[i].base != '-')
-//         {
-//             score += 2;
-//         }
-//         else
-//         {
-//             score -= 1;
-//         }
-//     }
-
-//     return score;
-// }
-
 // Função que calcula o score de duas subsequencias de mesmo tamanho paralelizando na GPU
 template <typename T>
 struct w
@@ -146,68 +124,68 @@ struct w
 };
 
 // Algoritmo de smith-waterman para calcular o score de subsequencias com diferentes tamanhos
-// int Smith_Waterman(vector<nucleotidio> seq_a, vector<nucleotidio> seq_b)
-// {
-//     int n = seq_a.size();
-//     int m = seq_b.size();
+int Smith_Waterman(vector<nucleotidio> seq_a, vector<nucleotidio> seq_b)
+{
+    int n = seq_a.size();
+    int m = seq_b.size();
 
-//     vector<vector<mat_ele>> H(n + 1, vector<mat_ele>(m + 1));
+    vector<vector<mat_ele>> H(n + 1, vector<mat_ele>(m + 1));
 
-//     for (int i = 0; i < n + 1; i++)
-//     {
-//         for (int j = 0; j < m + 1; j++)
-//         {
-//             mat_ele item;
+    for (int i = 0; i < n + 1; i++)
+    {
+        for (int j = 0; j < m + 1; j++)
+        {
+            mat_ele item;
 
-//             if (j == 0 || i == 0)
-//             {
-//                 H[i][j] = item;
-//             }
-//             else
-//             {
+            if (j == 0 || i == 0)
+            {
+                H[i][j] = item;
+            }
+            else
+            {
 
-//                 int diagonal = H[i - 1][j - 1].val + char_score(seq_a[i - 1].base, seq_b[j - 1].base);
-//                 int delecao = H[i - 1][j].val - 1;
-//                 int insercao = H[i][j - 1].val - 1;
+                int diagonal = H[i - 1][j - 1].val + char_score(seq_a[i - 1].base, seq_b[j - 1].base);
+                int delecao = H[i - 1][j].val - 1;
+                int insercao = H[i][j - 1].val - 1;
 
-//                 if (max({0, diagonal, delecao, insercao}) == diagonal)
-//                 {
-//                     item.i = i - 1;
-//                     item.j = j - 1;
-//                 }
-//                 else if (max({0, diagonal, delecao, insercao}) == delecao)
-//                 {
-//                     item.i = i - 1;
-//                     item.j = j;
-//                 }
-//                 else if (max({0, diagonal, delecao, insercao}) == insercao)
-//                 {
-//                     item.i = i;
-//                     item.j = j - 1;
-//                 }
+                if (max({0, diagonal, delecao, insercao}) == diagonal)
+                {
+                    item.i = i - 1;
+                    item.j = j - 1;
+                }
+                else if (max({0, diagonal, delecao, insercao}) == delecao)
+                {
+                    item.i = i - 1;
+                    item.j = j;
+                }
+                else if (max({0, diagonal, delecao, insercao}) == insercao)
+                {
+                    item.i = i;
+                    item.j = j - 1;
+                }
 
-//                 item.val = max({0, diagonal, delecao, insercao});
+                item.val = max({0, diagonal, delecao, insercao});
 
-//                 H[i][j] = item;
-//             }
-//         }
-//     }
+                H[i][j] = item;
+            }
+        }
+    }
 
-//     mat_ele max;
+    mat_ele max;
 
-//     for (auto &el1 : H)
-//     {
-//         for (auto &el2 : el1)
-//         {
-//             if (el2.val > max.val)
-//             {
-//                 max = el2;
-//             }
-//         }
-//     }
+    for (auto &el1 : H)
+    {
+        for (auto &el2 : el1)
+        {
+            if (el2.val > max.val)
+            {
+                max = el2;
+            }
+        }
+    }
 
-//     return max.val;
-// }
+    return max.val;
+}
 
 int main()
 {
@@ -221,13 +199,13 @@ int main()
     nucleotidio element;
     result resultado;
 
-    // Sequencias A e Bpowerset_a
-    thrust::host_vector<nucleotidio> a(n);
-    thrust::host_vector<nucleotidio> b(m);
+    // Sequencias A e B
+    vector<nucleotidio> a;
+    vector<nucleotidio> b;
 
     // Listas com todos os subconjuntos de A e B
-    thrust::host_vector<thrust::host_vector<nucleotidio>> powerset_a;
-    thrust::host_vector<thrust::host_vector<nucleotidio>> powerset_b;
+    vector<vector<nucleotidio>> powerset_a;
+    vector<vector<nucleotidio>> powerset_b;
 
     // Captura os elementos da primeira sequencia
     for (int i = 0; i < n; i++)
@@ -235,7 +213,7 @@ int main()
         element.id = i;
         cin >> element.base;
 
-        a[i] = element;
+        a.push_back(element);
     }
 
     // Captura os elementos da segunda sequencia
@@ -244,10 +222,10 @@ int main()
         element.id = i;
         cin >> element.base;
 
-        b[i] = element;
+        b.push_back(element);
     }
 
-    // Garantindo que a sequencia a seja a maior que a b
+    // Garantindo que a sequencia A seja a maior que a B
     // Para que as subsequencias de tamanho k não sejam maior que a sequencia a
     if (m > n)
     {
@@ -274,46 +252,46 @@ int main()
     thrust::device_vector<thrust::device_vector<nucleotidio>> gpu_powerset_b(powerset_b);
 
     // Calcula o score de todas as subsequencias de A e B
-    for (auto &el : gpu_powerset_a)
+    for (int i = 0; i < n; i++)
     {
-        for (auto &el2 : gpu_powerset_b)
+        for (int j = 0; j < m; j++)
         {
             int temp_score = 0;
 
-            if (el2.size() == el.size())
+            if (gpu_powerset_a[i].size() == gpu_powerset_b[j].size())
             {
-                thrust::device_vector<nucleotidio> res(el.size());
-                thrust::transform(el.begin(), el.end(), el2.end(), res.begin(), w());
+                thrust::device_vector<nucleotidio> res(gpu_powerset_b[j].size());
+                thrust::transform(gpu_powerset_b[j].begin(), gpu_powerset_b[j].end(), gpu_powerset_a[i].end(), res.begin(), w());
 
                 temp_score = thrust::reduce(res.begin(), res.end(), 0);
             }
             else
             {
-                // temp_score = Smith_Waterman(el, el2);
+                temp_score = Smith_Waterman(el, el2);
             }
 
             // Verifica se o temp_score é maior que o score do resultado
             if (temp_score > resultado.score)
             {
                 resultado.score = temp_score;
-                resultado.subseq_a = el;
-                resultado.subseq_b = el2;
+                resultado.subseq_a = gpu_powerset_a[i];
+                resultado.subseq_b = gpu_powerset_b[j];
             }
         }
     }
 
     // Imprime o resultado e as subsequencias
     cout << "subsequencia A: ";
-    for (auto &el : resultado.subseq_a)
+    for (int i = 0; i < resultado.subseq_a.size(); i++)
     {
-        cout << el.base;
+        cout << resultado.subseq_a[i].base;
     }
     cout << endl;
 
     cout << "subsequencia B: ";
-    for (auto &el : resultado.subseq_b)
+    for (int i = 0; i < resultado.subseq_b.size(); i++)
     {
-        cout << el.base;
+        cout << resultado.subseq_b[i].base;
     }
     cout << endl;
 
