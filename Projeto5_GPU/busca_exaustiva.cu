@@ -1,4 +1,3 @@
-
 #include <chrono>
 #include <vector>
 #include <iostream>
@@ -123,25 +122,27 @@ template <typename T>
 struct w
 {
     int value;
-	  typedef int result_type;
-	  typedef T first_argument_type;
-	  typedef T second_argument_type;
-  
+    typedef int result_type;
+    typedef T first_argument_type;
+    typedef T second_argument_type;
+
     __host__ __device__
-        T operator()(const T &x, const T &y) const { 
-            value = 0;
+        T
+        operator()(const T &x, const T &y) const
+    {
+        value = 0;
 
-              if (x.base == y.base && y.base != '-')
-              {
-                  value += 2;
-              }
-              else
-              {
-                  value -= 1;
-              }
-
-            return value;
+        if (x.base == y.base && y.base != '-')
+        {
+            value += 2;
         }
+        else
+        {
+            value -= 1;
+        }
+
+        return value;
+    }
 };
 
 // Algoritmo de smith-waterman para calcular o score de subsequencias com diferentes tamanhos
@@ -220,13 +221,13 @@ int main()
     nucleotidio element;
     result resultado;
 
-    // Sequencias A e B
+    // Sequencias A e Bpowerset_a
     thrust::host_vector<nucleotidio> a(n);
     thrust::host_vector<nucleotidio> b(m);
 
     // Listas com todos os subconjuntos de A e B
-    thrust::host_vector<thrust::host_vector<nucleotidio>> power_set_a;
-    thrust::host_vector<thrust::host_vector<nucleotidio>> power_set_b;
+    thrust::host_vector<thrust::host_vector<nucleotidio>> powerset_a;
+    thrust::host_vector<thrust::host_vector<nucleotidio>> powerset_b;
 
     // Captura os elementos da primeira sequencia
     for (int i = 0; i < n; i++)
@@ -259,18 +260,18 @@ int main()
         n = m;
         m = aux;
     }
- 
+
     // Enviando para a GPU as sequencias A e B
     thrust::device_vector<nucleotidio> gpu_a(a);
-	  thrust::device_vector<nucleotidio> gpu_b(b);
+    thrust::device_vector<nucleotidio> gpu_b(b);
 
     // Gera todos os subconjuntos de A e B e armazena em powerset_a e powerset_b
     powerset_a = createPowerSet(a, n);
     powerset_b = createPowerSet(b, m);
- 
+
     // Enviando para a GPU os powersets de A e B
     thrust::device_vector<thrust::device_vector<nucleotidio>> gpu_powerset_a(powerset_a);
-	  thrust::device_vector<thrust::device_vector<nucleotidio>> gpu_powerset_b(powerset_b);
+    thrust::device_vector<thrust::device_vector<nucleotidio>> gpu_powerset_b(powerset_b);
 
     // Calcula o score de todas as subsequencias de A e B
     for (auto &el : gpu_powerset_a)
@@ -283,9 +284,8 @@ int main()
             {
                 thrust::device_vector<nucleotidio> res(el.size());
                 thrust::transform(el.begin(), el.end(), el2.end(), res.begin(), w());
-             
-                temp_score = thrust::reduce(res.begin(), res.end(), 0);
 
+                temp_score = thrust::reduce(res.begin(), res.end(), 0);
             }
             else
             {
