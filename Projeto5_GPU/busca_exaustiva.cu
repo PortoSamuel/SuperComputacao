@@ -124,68 +124,68 @@ struct w
 };
 
 // Algoritmo de smith-waterman para calcular o score de subsequencias com diferentes tamanhos
-int Smith_Waterman(vector<nucleotidio> seq_a, vector<nucleotidio> seq_b)
-{
-    int n = seq_a.size();
-    int m = seq_b.size();
+// int Smith_Waterman(vector<nucleotidio> seq_a, vector<nucleotidio> seq_b)
+// {
+//     int n = seq_a.size();
+//     int m = seq_b.size();
 
-    vector<vector<mat_ele>> H(n + 1, vector<mat_ele>(m + 1));
+//     vector<vector<mat_ele>> H(n + 1, vector<mat_ele>(m + 1));
 
-    for (int i = 0; i < n + 1; i++)
-    {
-        for (int j = 0; j < m + 1; j++)
-        {
-            mat_ele item;
+//     for (int i = 0; i < n + 1; i++)
+//     {
+//         for (int j = 0; j < m + 1; j++)
+//         {
+//             mat_ele item;
 
-            if (j == 0 || i == 0)
-            {
-                H[i][j] = item;
-            }
-            else
-            {
+//             if (j == 0 || i == 0)
+//             {
+//                 H[i][j] = item;
+//             }
+//             else
+//             {
 
-                int diagonal = H[i - 1][j - 1].val + char_score(seq_a[i - 1].base, seq_b[j - 1].base);
-                int delecao = H[i - 1][j].val - 1;
-                int insercao = H[i][j - 1].val - 1;
+//                 int diagonal = H[i - 1][j - 1].val + char_score(seq_a[i - 1].base, seq_b[j - 1].base);
+//                 int delecao = H[i - 1][j].val - 1;
+//                 int insercao = H[i][j - 1].val - 1;
 
-                if (max({0, diagonal, delecao, insercao}) == diagonal)
-                {
-                    item.i = i - 1;
-                    item.j = j - 1;
-                }
-                else if (max({0, diagonal, delecao, insercao}) == delecao)
-                {
-                    item.i = i - 1;
-                    item.j = j;
-                }
-                else if (max({0, diagonal, delecao, insercao}) == insercao)
-                {
-                    item.i = i;
-                    item.j = j - 1;
-                }
+//                 if (max({0, diagonal, delecao, insercao}) == diagonal)
+//                 {
+//                     item.i = i - 1;
+//                     item.j = j - 1;
+//                 }
+//                 else if (max({0, diagonal, delecao, insercao}) == delecao)
+//                 {
+//                     item.i = i - 1;
+//                     item.j = j;
+//                 }
+//                 else if (max({0, diagonal, delecao, insercao}) == insercao)
+//                 {
+//                     item.i = i;
+//                     item.j = j - 1;
+//                 }
 
-                item.val = max({0, diagonal, delecao, insercao});
+//                 item.val = max({0, diagonal, delecao, insercao});
 
-                H[i][j] = item;
-            }
-        }
-    }
+//                 H[i][j] = item;
+//             }
+//         }
+//     }
 
-    mat_ele max;
+//     mat_ele max;
 
-    for (auto &el1 : H)
-    {
-        for (auto &el2 : el1)
-        {
-            if (el2.val > max.val)
-            {
-                max = el2;
-            }
-        }
-    }
+//     for (auto &el1 : H)
+//     {
+//         for (auto &el2 : el1)
+//         {
+//             if (el2.val > max.val)
+//             {
+//                 max = el2;
+//             }
+//         }
+//     }
 
-    return max.val;
-}
+//     return max.val;
+// }
 
 int main()
 {
