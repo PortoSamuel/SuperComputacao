@@ -267,7 +267,7 @@ int main()
             }
             else
             {
-                temp_score = Smith_Waterman(el, el2);
+                // temp_score = Smith_Waterman(gpu_powerset_a[i], gpu_powerset_b[j]);
             }
 
             // Verifica se o temp_score é maior que o score do resultado
